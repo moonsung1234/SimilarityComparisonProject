@@ -1,7 +1,9 @@
 
 from selenium import webdriver
 from urllib import parse
+import requests
 import time
+import os
 
 # 대상
 search_target = input("대상을 입력해주세요 : ")
@@ -21,12 +23,24 @@ for i in range(scroll_count) :
 
 time.sleep(3)
 
-# 사진 갯수 가져오기
+# 사진 링크들을 모으기 
 images = driver.execute_script("return document.querySelectorAll(\"._image._listImage\")")
 images = list(map(lambda e : e.get_attribute("src"), images))
+images = list(filter(lambda img : "https://" in img, images))
 
-print(len(images))
+print(images)
 
-images = list(filter(lambda img : "https://" not in img, images))
+# 창 닫기
+driver.quit()
 
-print(len(images))
+# 사진 링크를 통해 사진들을 다운받기
+image_path = "C:\\Users\\muns3\\OneDrive\\Desktop\\python-project\\유사도 측정 프로그램\\image"
+
+for i in range(len(images)) :
+    folder = image_path + "\\" + search_target
+    file =  search_target + str(i) + ".jpg"
+
+    res = requests.get(images[i])
+    
+    with open(os.path.join(folder, file), "wb") as f :
+        f.write(res.content)
