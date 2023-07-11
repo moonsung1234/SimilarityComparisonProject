@@ -2,42 +2,107 @@
 from tensorflow.keras.applications.vgg16 import VGG16
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten
 from tensorflow.keras.layers import Dense, Dropout, Input
-from tensorflow.keras.models import Model
-from tensorflow.keras.utils import plot_model   
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.utils import plot_model
+from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
-import cv2
+from PIL import Image 
 import os
 
+img_width, img_height = 200, 200
+batch_size = 32
+epochs = 5
+label = 5
+
+def get_data(target) :
+    path = "C:\\Users\\muns3\\OneDrive\\Desktop\\python-project\\유사도 측정 프로그램\\image\\" + target + "_face"
+    data = []
+
+    for i, img in enumerate(os.listdir(path)) :
+        image = np.asarray(Image.open(os.path.join(path, img)))
+        data.append(image)
+
+        if i >= 200 :
+            break
+
+    return data
+
+def one_hot_encode(label, index) :
+    return_label = [ 0 for _ in range(label) ]
+    return_label[index] = 1
+
+    return return_label
+
 # 감스트
-path = os.path.relpath("C:\\Users\\dit67\\Desktop\\python\\GAMST\\SimilarityComparisonProject\\image\\감스트_face")
+train_gst_x = get_data("감스트")
+train_gst_t = [ one_hot_encode(label, 0) for i in range(len(train_gst_x)) ]
 
-# for i, img in enumerate(os.listdir(path)) :
-#     image = cv2.imdecode(np.fromfile(os.path.join(path, img), dtype=np.uint8), cv2.IMREAD_GRAYSCALE)
-
-#     print(image.shape)
-#     cv2.imshow("image", image)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
+print(len(train_gst_x))
 
 # 괴물쥐
-path = os.path.relpath("C:\\Users\\dit67\\Desktop\\python\\GAMST\\SimilarityComparisonProject\\image\\괴물쥐_face")
+train_mm_x = get_data("괴물쥐")
+train_mm_t = [ one_hot_encode(label, 1) for i in range(len(train_mm_x)) ]
+
+print(len(train_mm_x))
 
 # 안유진
-path = os.path.relpath("C:\\Users\\dit67\\Desktop\\python\\GAMST\\SimilarityComparisonProject\\image\\안유진_face")
+train_an_x = get_data("안유진")
+train_an_t = [ one_hot_encode(label, 2) for i in range(len(train_an_x)) ]
+
+print(len(train_an_x))
 
 # 정찬성
-path = os.path.relpath("C:\\Users\\dit67\\Desktop\\python\\GAMST\\SimilarityComparisonProject\\image\\정찬성_face")
+train_jung_x = get_data("정찬성")
+train_jung_t = [ one_hot_encode(label, 3) for i in range(len(train_jung_x)) ]
+
+print(len(train_jung_x))
 
 # 침착맨
-path = os.path.relpath("C:\\Users\\dit67\\Desktop\\python\\GAMST\\SimilarityComparisonProject\\image\\침착맨_face")
+train_relx_x = get_data("침착맨")
+train_relx_t = [ one_hot_encode(label, 4) for i in range(len(train_relx_x)) ]
 
-# transfer_input = Input(shape=(200, 200, 1))
+print(len(train_relx_x))
+
+train_x_data = np.array(train_gst_x + train_mm_x + train_an_x + train_jung_x + train_relx_x) / 255
+train_t_data = np.array(train_gst_t + train_mm_t + train_an_t + train_jung_t + train_relx_t)
+
+train_x, test_x, train_t, test_t = train_test_split(train_x_data, train_t_data, test_size=0.2, random_state=2023)
+
+print(train_x.shape, train_t.shape)
+
+train_data = tf.data.Dataset.from_tensor_slices((train_x, train_t)).batch(batch_size)
+test_data = tf.data.Dataset.from_tensor_slices((test_x, test_t)).batch(batch_size)
+
+transfer_input = Input(shape=(200, 200, 3))
 transfer_model = tf.keras.applications.vgg16.VGG16(
-    # include_top = False,
+    include_top = False,
     weights = "imagenet",
-    # input_tensor = transfer_input,
+    input_tensor = transfer_input
+)
+transfer_model.trainable = False
+transfer_model.summary()
+
+model = Sequential([
+    transfer_model,
+    Flatten(),
+    Dense(1024, activation="relu"),
+    Dropout(0.3),
+    Dense(64, activation="relu"), 
+    Dense(5, activation="softmax")
+])
+model.summary()
+model.compile(
+    optimizer = "adam", 
+    loss = "categorical_crossentropy", 
+    metrics = ["accuracy"]
+)
+model.fit(
+    train_data,
+    validation_data = test_data,
+    epochs = epochs,
+    batch_size = batch_size
 )
 
-transfer_model.summary()
+model.save("model.h5")
