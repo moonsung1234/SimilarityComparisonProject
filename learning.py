@@ -4,11 +4,12 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten
 from tensorflow.keras.layers import Dense, Dropout, Input
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.utils import plot_model
+from tensorflow.keras.callbacks import ModelCheckpoint
 from sklearn.model_selection import train_test_split
+from PIL import Image 
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
-from PIL import Image 
 import os
 
 img_width, img_height = 200, 200
@@ -17,7 +18,7 @@ epochs = 5
 label = 5
 
 def get_data(target) :
-    path = "C:\\Users\\muns3\\OneDrive\\Desktop\\python-project\\유사도 측정 프로그램\\image\\" + target + "_face"
+    path = ".\\image\\" + target + "_face"
     data = []
 
     for i, img in enumerate(os.listdir(path)) :
@@ -92,6 +93,13 @@ model = Sequential([
     Dense(64, activation="relu"), 
     Dense(5, activation="softmax")
 ])
+checkpoint = ModelCheckpoint("model.h5",
+    monitor = "val_loss",
+    verbose = 1,
+    save_best_only = True,
+    mode = "auto"
+)
+
 model.summary()
 model.compile(
     optimizer = "adam", 
@@ -102,7 +110,8 @@ model.fit(
     train_data,
     validation_data = test_data,
     epochs = epochs,
-    batch_size = batch_size
+    batch_size = batch_size,
+    callbacks = [checkpoint]
 )
 
 model.save("model.h5")

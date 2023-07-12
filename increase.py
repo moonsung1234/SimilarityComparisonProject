@@ -16,7 +16,7 @@ def save_image(path, image) :
 target = input("대상을 입력하세요 : ")
 
 # 사진 폴더 경로 설정
-image_path = "C:\\Users\\muns3\\OneDrive\\Desktop\\python-project\\유사도 측정 프로그램\\image\\" + target + "_face"
+image_path = "./image/" + target + "_face"
 
 # 폴더 내의 사진들 탐색
 for i, img in enumerate(os.listdir(image_path)) :

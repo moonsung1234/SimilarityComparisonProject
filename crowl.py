@@ -34,10 +34,10 @@ print(images)
 driver.quit()
 
 # 사진 링크를 통해 사진들을 다운받기
-image_path = "C:\\Users\\muns3\\OneDrive\\Desktop\\python-project\\유사도 측정 프로그램\\image"
+image_path = "./image"
 
 for i in range(len(images)) :
-    folder = image_path + "\\" + search_target
+    folder = image_path + "/" + search_target
     file =  search_target + str(i) + ".jpg"
 
     res = requests.get(images[i])

@@ -7,7 +7,7 @@ import os
 target = input("대상을 입력해주세요 : ")
 
 # 사진 폴더 경로 설정
-image_path = "C:\\Users\\muns3\\OneDrive\\Desktop\\python-project\\유사도 측정 프로그램\\image\\" + target
+image_path = "./image/" + target
 
 # haar cascades 모델 가져오기
 haar = cv2.CascadeClassifier("haarcascade_frontalface_alt.xml")
