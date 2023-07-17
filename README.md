@@ -1,4 +1,4 @@
-# Similarity Comparison Project (인물 유사도 측정 프로젝트)
+# Similarity Comparison Project(인물 유사도 측정 프로젝트)
 
 장유고등학교 **SMART 진로학습 공동체** 공학 계열 실습 프로젝트
 > 공학 계열 친구들과 학급 친구들 모두가 쉽고 재미있게 사용할 수 있는 프로그램을 만들자는 취지로 계획되었다.
