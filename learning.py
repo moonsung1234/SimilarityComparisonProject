@@ -15,7 +15,7 @@ import os
 img_width, img_height = 200, 200
 batch_size = 32
 epochs = 10
-label = 4
+label = 5
 
 def get_data(target) :
     path = ".\\image\\" + target + "_face"
@@ -51,25 +51,25 @@ train_mm_t = [ one_hot_encode(label, 1) for i in range(len(train_mm_x)) ]
 print(len(train_mm_x))
 
 # 안유진
-# train_an_x = get_data("안유진")
-# train_an_t = [ one_hot_encode(label, 2) for i in range(len(train_an_x)) ]
+train_an_x = get_data("안유진")
+train_an_t = [ one_hot_encode(label, 2) for i in range(len(train_an_x)) ]
 
-# print(len(train_an_x))
+print(len(train_an_x))
 
 # 정찬성
 train_jung_x = get_data("정찬성")
-train_jung_t = [ one_hot_encode(label, 2) for i in range(len(train_jung_x)) ]
+train_jung_t = [ one_hot_encode(label, 3) for i in range(len(train_jung_x)) ]
 
 print(len(train_jung_x))
 
 # 침착맨
 train_relx_x = get_data("침착맨")
-train_relx_t = [ one_hot_encode(label, 3) for i in range(len(train_relx_x)) ]
+train_relx_t = [ one_hot_encode(label, 4) for i in range(len(train_relx_x)) ]
 
 print(len(train_relx_x))
 
-train_x_data = np.array(train_gst_x + train_mm_x +  train_jung_x + train_relx_x) / 255
-train_t_data = np.array(train_gst_t + train_mm_t +  train_jung_t + train_relx_t)
+train_x_data = np.array(train_gst_x + train_mm_x + train_an_x + train_jung_x + train_relx_x) / 255
+train_t_data = np.array(train_gst_t + train_mm_t + train_an_t + train_jung_t + train_relx_t)
 
 random_index = np.arange(train_x_data.shape[0])
 np.random.shuffle(random_index)
@@ -94,24 +94,11 @@ transfer_model.trainable = False
 transfer_model.summary()
 
 model = Sequential([
-    # Input(shape=(224 , 224, 3)),
-    # Conv2D(filters=96, kernel_size=11, activation='relu', strides=4, name='CONV_1'),
-    # MaxPooling2D((3,3), strides=2, name='POOL_1'),
-    # BatchNormalization(name='LRN_1'),
-
-    # Conv2D(filters=256, kernel_size=5, activation='relu', strides=1, padding='same', name='CONV_2'),
-    # MaxPooling2D((3,3), strides=2, name='POOL_2'),
-    # BatchNormalization(name='LRN_2'),
-
-    # Conv2D(filters=384, kernel_size=3, activation='relu', strides=1, padding='same', name='CONV_3'),
-    # Conv2D(filters=384, kernel_size=3, activation='relu', strides=1, padding='same', name='CONV_4'),
-    # Conv2D(filters=256, kernel_size=3, activation='relu', strides=1, padding='same', name='CONV_5'),
-    # MaxPooling2D((3,3), strides=2, name='POOL_3'),
     transfer_model,
     Flatten(),
     Dense(4096, activation="relu"),
     Dropout(0.5),
-    Dense(4, activation="softmax")
+    Dense(5, activation="softmax")
 ])
 checkpoint = ModelCheckpoint("model4.h5",
     monitor = "val_loss",
@@ -134,5 +121,3 @@ model.fit(
     batch_size = batch_size,
     callbacks = [checkpoint]
 )
-
-# model.save("model4.h5")

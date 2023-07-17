@@ -7,7 +7,9 @@ import numpy as np
 import os
 
 model = load_model("./model4.h5")
-label = np.array(["감스트", "괴물쥐", "정찬성", "침착맨"])
+label = np.array(["감스트", "괴물쥐", "안유진", "정찬성", "침착맨"])
+results = []
+
 path = "./image/학급_face"
 
 matplotlib.rcParams["font.family"] = "Malgun Gothic"
@@ -25,10 +27,12 @@ for i, img in enumerate(os.listdir(path)) :
     result = model.predict(pre_image)[0]
     index = np.argsort(result)[::-1]
 
+    results.append(result)
+
     print(img, list(map(lambda x : round(x, 2), result)))
 
     plt.figure(figsize=(10, 20))
-    plt.subplot(1, 5, 1)
+    plt.subplot(1, 6, 1)
     plt.title(img)
     plt.imshow(np.asarray(image.resize((200, 200))))
 
@@ -37,9 +41,22 @@ for i, img in enumerate(os.listdir(path)) :
         target_img = Image.open(os.path.join(target_path, os.listdir(target_path)[0]))
         target_img = np.asarray(target_img)
         
-        plt.subplot(1, 5, i + 2)
+        plt.subplot(1, 6, i + 2)
         plt.title(target + " : " + str(round(result[index[i]] * 100, 2)) + "%")
         plt.imshow(target_img)
 
     plt.show()
+
+x = np.arange(label.shape[0])
+values = np.zeros(5)
+
+for result in results :
+    index = list(result).index(max(result))
+    values[index] += 1
+    
+plt.figure(figsize=(10, 20))
+plt.bar(x, values)
+plt.xticks(x, label)
+
+plt.show()
 
